@@ -7,7 +7,7 @@ class player:
 
     def getX(self):
         return self.x
-#hellonn
+#hellonnn
     def getY(self):
         return self.y
 
