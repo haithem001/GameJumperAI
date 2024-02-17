@@ -9,11 +9,14 @@ from Player import player
 from Tile import tile
 from enum import Enum
 
+
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
     UP = 3
     FIX = 4
+
+
 (width, height) = (900, 900)
 play = False
 
@@ -22,9 +25,9 @@ FPS = 3
 h = 400
 Dude = player(width / 2, height - 400, 60, 60)
 Tile1 = tile(width / 2, height - 90, 100, 60)
-Tile2 = tile(width-200,height - 180 , 100,60)
+Tile2 = tile(width - 200, height - 180, 100, 60)
 
-x, y = Dude.getX(), height-100
+x, y = Dude.getX(), height - 100
 
 T1 = pygame.Rect(Tile1.getX(), Tile1.getY(), 100, 10)
 
@@ -39,16 +42,19 @@ pygame.display.set_caption('Jumper')
 screen.fill(background_colour)
 
 direction = Direction.FIX
+
+
 def Draw():
     pygame.draw.rect(screen, (100, 255, 100), D)
     pygame.draw.rect(screen, (100, 255, 100), T1)
     pygame.draw.rect(screen, (100, 255, 100), T2)
 
 
-
 dx = 50
 dy = 50
-#movement functions
+
+
+# movement functions
 def play_step():
     global play
     global pos
@@ -58,10 +64,10 @@ def play_step():
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
-        #input
+        # input
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                play= True
+                play = True
             elif event.key == pygame.K_LEFT:
                 direction = Direction.LEFT
             elif event.key == pygame.K_RIGHT:
@@ -72,7 +78,9 @@ def play_step():
             if event.key == pygame.K_RIGHT:
                 direction = Direction.FIX
     _move(direction)
-#action
+
+
+# action
 def _move(direction):
     global play
     global pos
@@ -85,24 +93,25 @@ def _move(direction):
 
     elif direction == Direction.FIX:
         pos = 0
+
+
 def reset():
     Dude.setX(width / 2)
     Dude.setY(height - 400)
     frame_iteration = 0
+
+
 def Gravity(x):
-    if x==1:
+    if x == 1:
         Dude.setY(Dude.getY() + 3.2 / FPS)
     else:
         pass
 
 
-
 def Update():
-
     global dx, dy
 
     D.update(Dude.getX(), Dude.getY(), 60, 60)
-
 
 
 def Jump():
@@ -112,7 +121,7 @@ def Jump():
     global play
 
     if Dude.getY() > height - Dude.getH() - h and play is True:
-        if Tile1.getX() - Tile1.getW() / 2 <= Dude.getX() <= Tile1.getX() + Tile1.getW() and Dude.getY() >= Tile1.getY()+10:
+        if Tile1.getX() - Tile1.getW() / 2 <= Dude.getX() <= Tile1.getX() + Tile1.getW() and Dude.getY() >= Tile1.getY() + 10:
             play = False
         else:
             Dude.setY(Dude.getY() - 3 / FPS)
@@ -120,19 +129,17 @@ def Jump():
         play = False
 
     if not play:
-            if Tile1.getX()-Dude.getW()<Dude.getX()<Tile1.getX()+Tile1.getW() and Dude.getY()>Tile1.getY()-Dude.getH():
-                if  Dude.getY()==Tile1.getY()-10:
-                    Gravity(0)
-            elif Tile2.getX()-Dude.getW()<Dude.getX()<Tile2.getX()+Tile2.getW() and Dude.getY()>Tile2.getY()-Dude.getH():
-                if  Dude.getY()==Tile2.getY()-10:
-                    Gravity(0)
-            else :
-                Gravity(1)
+        if Tile1.getX() - Dude.getW() < Dude.getX() < Tile1.getX() + Tile1.getW() and Dude.getY() > Tile1.getY() - Dude.getH():
+            if Dude.getY() == Tile1.getY() - 10:
+                Gravity(0)
+        elif Tile2.getX() - Dude.getW() /2 < Dude.getX() < Tile2.getX() + Tile2.getW() and Dude.getY() > Tile2.getY() - Dude.getH():
+            if Dude.getY() == Tile2.getY() - 10:
+                Gravity(0)
+        else:
+            Gravity(1)
 
-    if Dude.getY()>height:
+    if Dude.getY() > height:
         reset()
-
-
 
 
 # Launch
@@ -148,7 +155,6 @@ while running:
 
     pygame.display.flip()
     play_step()
-
 
     # Horizontal movement
     if width - Dude.getW() - pos > Dude.getX() > 0:
