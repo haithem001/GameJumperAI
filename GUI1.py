@@ -57,7 +57,7 @@ class Game:
     def reset(self):
         self.D.x = self.w / 2
         self.h - 300
-
+#MOOD
     def _move(self):
         if self.direction == Direction.RIGHT:
             self.D.x += 5
@@ -68,11 +68,9 @@ class Game:
         if not self.on_ground:
             self.velocity += 0.5  # Increase velocity due to gravity
             self.D.y += self.velocity
-            if self.Tile1.x - self.Tile1.w / 2 < self.D.x < self.Tile1.x + self.Tile1.w:
-                if self.D.y >= self.Tile1.y - self.D.h:
-
-                    self.velocity=0
-                    self.D.y = self.Tile1.y - self.D.h
+            if (self.Tile1.x - self.Tile1.w / 2 < self.D.x < self.Tile1.x + self.Tile1.w) and (self.D.y + self.D.h >= self.Tile1.y) and (self.D.y < self.Tile1.y):
+                self.velocity = 0.5
+                self.D.y = self.Tile1.y - self.D.h
 
             if self.Tile2.x - self.Tile2.w / 2 < self.D.x < self.Tile2.x + self.Tile2.w:
                 if self.D.y >= self.Tile2.y - self.D.h:
