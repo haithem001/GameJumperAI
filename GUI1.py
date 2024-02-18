@@ -75,12 +75,11 @@ class Game:
                     self.D.y + self.D.h > self.Tile1.y):
                 self.velocity = 0
                 print(self.D.y,self.Tile1.y,self.D.h)
-                if (self.Tile1.y-self.D.y<self.D.h) :
+                if (self.Tile1.y-self.D.y<self.D.h) and not (self.Tile1.x-1.5<self.D.x <self.Tile1.x+self.Tile1.w):
                     self.D.x = self.Tile1.x-self.D.w
 
                 elif (self.D.y + self.D.h >= self.Tile1.y) and (self.D.y < self.Tile1.y):
                     self.D.y = self.Tile1.y - self.D.h
-
 
             if (self.D.x < self.Tile2.x + self.Tile2.w and
                 self.D.x + self.D.w > self.Tile2.x and
