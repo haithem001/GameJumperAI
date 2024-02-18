@@ -68,13 +68,19 @@ class Game:
         if not self.on_ground:
             self.velocity += 0.5  # Increase velocity due to gravity
             self.D.y += self.velocity
+
             if (self.D.x < self.Tile1.x + self.Tile1.w and
                     self.D.x + self.D.w > self.Tile1.x and
-                    self.D.y < self.Tile1.y + 1.2*self.Tile1.h and
+                    self.D.y < self.Tile1.y + 1.5*self.Tile1.h and
                     self.D.y + self.D.h > self.Tile1.y):
                 self.velocity = 0
-                if (self.D.y + self.D.h >= self.Tile1.y) and (self.D.y < self.Tile1.y):
+                print(self.D.y,self.Tile1.y,self.D.h)
+                if (self.Tile1.y-self.D.y<self.D.h) :
+                    self.D.x = self.Tile1.x-self.D.w
+
+                elif (self.D.y + self.D.h >= self.Tile1.y) and (self.D.y < self.Tile1.y):
                     self.D.y = self.Tile1.y - self.D.h
+
 
             if (self.D.x < self.Tile2.x + self.Tile2.w and
                 self.D.x + self.D.w > self.Tile2.x and
@@ -117,5 +123,5 @@ if __name__ == '__main__':
     running = True
     while running:
         game.play_step()
-        game.clock.tick(60)
+        game.clock.tick(20)
     pygame.quit()
