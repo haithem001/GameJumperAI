@@ -72,11 +72,11 @@ class Game:
                 self.velocity = 0.5
                 self.D.y = self.Tile1.y - self.D.h
 
-            if self.Tile2.x - self.Tile2.w / 2 < self.D.x < self.Tile2.x + self.Tile2.w:
-                if self.D.y >= self.Tile2.y - self.D.h:
+            if (self.Tile2.x - self.Tile2.w / 2 < self.D.x < self.Tile2.x + self.Tile2.w) and (self.D.y + self.D.h >= self.Tile2.y) and (self.D.y < self.Tile2.y):
 
-                    self.velocity=0
-                    self.D.y = self.Tile2.y - self.D.h
+
+                self.velocity=0
+                self.D.y = self.Tile2.y - self.D.h
             else:
                 self.on_ground = False
                 if self.D.y > self.h - 200:
