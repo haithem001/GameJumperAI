@@ -70,7 +70,7 @@ class Game:
             self.D.y += self.velocity
             if (self.D.x < self.Tile1.x + self.Tile1.w and
                     self.D.x + self.D.w > self.Tile1.x and
-                    self.D.y < self.Tile1.y + self.Tile1.h and
+                    self.D.y < self.Tile1.y + 1.2*self.Tile1.h and
                     self.D.y + self.D.h > self.Tile1.y):
                 self.velocity = 0
                 if (self.D.y + self.D.h >= self.Tile1.y) and (self.D.y < self.Tile1.y):
@@ -103,10 +103,10 @@ class Game:
 
     def _update_ui(self):
         self.display.fill(BLACK)
-        pygame.draw.rect(self.display, BLUE1, self.D)
-        pygame.draw.rect(self.display, BLUE1, self.Tile1)
+        pygame.draw.rect(self.display, RED, self.Tile1)
         pygame.draw.rect(self.display, BLUE1, self.Tile2)
         pygame.draw.rect(self.display, RED, self.Ground)
+        pygame.draw.rect(self.display, BLUE1, self.D)
 
         pygame.display.flip()
 
