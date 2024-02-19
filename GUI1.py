@@ -28,7 +28,8 @@ class Game:
         self.velocity = 0
         self.on_ground = False
         self.jump_height = 15
-       
+
+
 
     def play_step(self):
         for event in pygame.event.get():
@@ -68,27 +69,35 @@ class Game:
         if not self.on_ground:
             self.velocity += 0.5  # Increase velocity due to gravity
             self.D.y += self.velocity
-
+            print(self.D.x,self.Tile1.x+self.Tile1.w)
             if (self.D.x < self.Tile1.x + self.Tile1.w and
                     self.D.x + self.D.w > self.Tile1.x and
                     self.D.y < self.Tile1.y + 1.5*self.Tile1.h and
                     self.D.y + self.D.h > self.Tile1.y):
                 self.velocity = 0
-                print(self.D.y,self.Tile1.y,self.D.h)
-                if (self.Tile1.y-self.D.y < self.D.h) and (self.Tile1.x> self.D.x +54):
-                    self.D.x = self.Tile1.x-self.D.w
-                else:
-                    self.D.y = self.Tile1.y - self.D.h
 
+                if (self.Tile1.y-self.D.y<self.D.h) and not (self.Tile1.x-55 < self.D.x ):
+                    self.D.x = self.Tile1.x-self.D.w
+
+                elif (self.Tile1.y-self.D.y<self.D.h) and not (self.Tile1.x > self.D.x -95 ):
+                    self.D.x = self.Tile1.x+self.Tile1.w
+
+                elif (self.D.y + self.D.h >= self.Tile1.y) and (self.D.y < self.Tile1.y):
+                    self.D.y = self.Tile1.y - self.D.h
 
             if (self.D.x < self.Tile2.x + self.Tile2.w and
                 self.D.x + self.D.w > self.Tile2.x and
                 self.D.y < self.Tile2.y + self.Tile2.h and
                 self.D.y + self.D.h > self.Tile2.y):
                 self.velocity = 0
-                if (self.D.y + self.D.h >= self.Tile2.y) and (self.D.y < self.Tile2.y):
-                    self.D.y = self.Tile2.y - self.D.h
+                if (self.Tile2.y-self.D.y<self.D.h) and not (self.Tile2.x-55 < self.D.x ):
+                    self.D.x = self.Tile2.x-self.D.w
 
+                elif (self.Tile2.y-self.D.y<self.D.h) and not (self.Tile2.x > self.D.x -95 ):
+                    self.D.x = self.Tile2.x+self.Tile2.w
+
+                elif (self.D.y + self.D.h >= self.Tile2.y) and (self.D.y < self.Tile2.y):
+                    self.D.y = self.Tile2.y - self.D.h
             else:
                 self.on_ground = False
                 if self.D.y > self.h - 200:
