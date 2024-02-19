@@ -2,8 +2,8 @@ import pygame
 from enum import Enum
 
 BLACK = (0, 0, 0)
-BLUE1 = (0, 0, 255)
-RED = (100, 0, 0)
+White = (255, 255, 255)
+
 
 
 class Direction(Enum):
@@ -14,6 +14,14 @@ class Direction(Enum):
 
 
 class Game:
+    def set_text(string, coordx, coordy, fontSize): #Function to set text
+
+        font = pygame.font.Font('freesansbold.ttf', fontSize)
+        #(0, 0, 0) is black, to make black text
+        text = font.render(string, True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (coordx, coordy)
+        return (text, textRect)
     def __init__(self, w=900, h=900):
         self.w = w
         self.h = h
@@ -22,14 +30,50 @@ class Game:
         self.clock = pygame.time.Clock()
         self.direction = Direction.FIX
         self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
-        self.Ground = pygame.Rect(0, self.h - 140, self.w, self.h)
-        self.Tile1 = pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10)
-        self.Tile2 = pygame.Rect(self.w / 2 - 200, self.h - 400, 100, 10)
+
+
+
+
+        self.ListOfThem=[pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10),
+                         pygame.Rect(self.w / 2 - 200, self.h - 400, 100, 10),
+                         pygame.Rect(self.w - 30, self.h - 400, 100, 10),
+                         pygame.Rect(self.w / 2 + 100, self.h - 595, 100, 10),
+                         pygame.Rect(self.w / 2 - 200, self.h - 530, 100, 10),
+                         pygame.Rect(600, self.h - 700, 100, 10),
+                         pygame.Rect(400, self.h - 700, 100, 10),
+                         pygame.Rect(self.w - 30, self.h - 800, 100, 10),
+                         pygame.Rect(0, self.h - 700, 100, 10),
+                         pygame.Rect(0, self.h - 450, 100, 10),
+                         pygame.Rect(self.w/2-20, self.h - 140,100, 10)]
+
         self.velocity = 0
         self.on_ground = False
         self.is_jumping=False
         self.jump_height = 15
 
+
+    def Collisions(self , Tile):
+        if (self.D.x < Tile.x + Tile.w and
+                self.D.x + self.D.w > Tile.x and
+                self.D.y < Tile.y + 1.5*Tile.h and
+                self.D.y + self.D.h > Tile.y):
+            self.velocity = 0
+            self.is_jumping=True
+
+            if (Tile.y-self.D.y<self.D.h) and not (Tile.x-55 < self.D.x ):
+                self.D.x = Tile.x-self.D.w
+
+            elif (Tile.y-self.D.y<self.D.h) and not (Tile.x > self.D.x -95 ):
+                self.D.x = Tile.x+Tile.w
+
+            elif (self.D.y + self.D.h >= Tile.y) and (self.D.y < Tile.y):
+                self.D.y = Tile.y - self.D.h
+                self.is_jumping=False
+            else:
+                self.on_ground = False
+                if self.D.y > self.h - 200:
+                    self.velocity += 0.5  # Increase velocity due to gravity
+                    self.D.y += self.velocity
 
 
     def play_step(self):
@@ -61,8 +105,9 @@ class Game:
         self._update_ui()
 
     def reset(self):
-        self.D.x = self.w / 2
-        self.h - 300
+        self.D.x=self.w/2
+        self.D.y=self.h - 180-self.D.h
+
 #MOOD
     def _move(self):
         if self.direction == Direction.RIGHT:
@@ -74,51 +119,11 @@ class Game:
         if not self.on_ground:
             self.velocity += 0.5  # Increase velocity due to gravity
             self.D.y += self.velocity
-            print(self.D.x,self.Tile1.x+self.Tile1.w)
-            if (self.D.x < self.Tile1.x + self.Tile1.w and
-                    self.D.x + self.D.w > self.Tile1.x and
-                    self.D.y < self.Tile1.y + 1.5*self.Tile1.h and
-                    self.D.y + self.D.h > self.Tile1.y):
-                self.velocity = 0
-                self.is_jumping=True
+            for i in self.ListOfThem:
+                self.Collisions(i)
 
-                if (self.Tile1.y-self.D.y<self.D.h) and not (self.Tile1.x-55 < self.D.x ):
-                    self.D.x = self.Tile1.x-self.D.w
-
-                elif (self.Tile1.y-self.D.y<self.D.h) and not (self.Tile1.x > self.D.x -95 ):
-                    self.D.x = self.Tile1.x+self.Tile1.w
-
-                elif (self.D.y + self.D.h >= self.Tile1.y) and (self.D.y < self.Tile1.y):
-                    self.D.y = self.Tile1.y - self.D.h
-                    self.is_jumping=False
-
-            if (self.D.x < self.Tile2.x + self.Tile2.w and
-                self.D.x + self.D.w > self.Tile2.x and
-                self.D.y < self.Tile2.y + self.Tile2.h and
-                self.D.y + self.D.h > self.Tile2.y):
-                self.velocity = 0
-
-                if (self.Tile2.y-self.D.y<self.D.h) and not (self.Tile2.x-55 < self.D.x ):
-                    self.D.x = self.Tile2.x-self.D.w
-
-
-                elif (self.Tile2.y-self.D.y<self.D.h) and not (self.Tile2.x > self.D.x -95 ):
-                    self.D.x = self.Tile2.x+self.Tile2.w
-
-                elif (self.D.y + self.D.h >= self.Tile2.y) and (self.D.y < self.Tile2.y):
-                    self.D.y = self.Tile2.y - self.D.h
-                    self.is_jumping=False
-            else:
-                self.on_ground = False
-                if self.D.y > self.h - 200:
-                    self.velocity += 0.5  # Increase velocity due to gravity
-                    self.D.y += self.velocity
-
-        if self.D.y >= self.h - 200:  # Check if the character has landed on the ground
-            self.D.y = self.h - 200
-            self.is_jumping=False
-            self.on_ground = True
-            self.velocity = 0
+        if self.D.y >= self.h : # Check if the character has landed on the ground
+            self.reset()
 
         # Keep the character within the game boundaries
         if self.D.x < 0:
@@ -128,10 +133,12 @@ class Game:
 
     def _update_ui(self):
         self.display.fill(BLACK)
-        pygame.draw.rect(self.display, RED, self.Tile1)
-        pygame.draw.rect(self.display, BLUE1, self.Tile2)
-        pygame.draw.rect(self.display, RED, self.Ground)
-        pygame.draw.rect(self.display, BLUE1, self.D)
+        for i in self.ListOfThem:
+            pygame.draw.rect(self.display, White, i)
+
+
+
+        pygame.draw.rect(self.display, White, self.D)
 
         pygame.display.flip()
 
