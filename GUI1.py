@@ -119,7 +119,7 @@ class Game:
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('JumpGame')
         self.clock = pygame.time.Clock()
-        self.clock.tick(1)
+        self.clock.tick(30)
         self.direction = Direction.FIX
         self.visited = {}
         self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
@@ -139,7 +139,7 @@ class Game:
         self.velocity = 0
         self.on_ground = False
         self.is_jumping = False
-        self.jump_height = 13
+        self.jump_height = 15
 
     def step(self):
         old_y = self.D.y
@@ -187,56 +187,61 @@ class Game:
         self.step_counter = 0
         self.visited = {}
         self.visited[self.D.y] = 1
-        state = [self.D.x, self.D.y]
+        state = [self.D.x, self.D.y-20]
         done = False
         return done, state
 
     def _move(self,action):
-        self._update_ui()
+        while True:
+            self.clock.tick(70)
 
-        '''Hethi lekhra'''
-        old_y = self.D.y
-        self.step_counter += 1
+            pygame.display.update()
+            self._update_ui()
 
-        if action == 1:
-            self.D.x += 3
-        elif action == 2:
-            self.D.x -= 3
-        elif action == 3:
+            '''Hethi lekhra'''
+            old_y = self.D.y
+            self.step_counter += 1
 
-            self.is_jumping = True
-            self.velocity = -self.jump_height
-            self.on_ground = False
-        if not self.on_ground:
-            self.velocity += 0.5
-            self.D.y += self.velocity
-            for i in self.ListOfThem:
-                self.Collisions(i)
+            if action == 1 :
+                self.D.x += 3
+            elif action == 2 :
+                self.D.x -= 3
+            elif action == 3 and not self.is_jumping:
 
-        if old_y not in self.visited:
-            self.visited[old_y] = 0
+                self.is_jumping = True
+                self.velocity = -self.jump_height
+                self.on_ground = False
 
-        if self.D.y > old_y:
-            reward = 0
-        elif(self.D.x < self.ListOfThem[0].x + self.ListOfThem[0].w and
-                self.D.x + self.D.w > self.ListOfThem[0].x and
-                self.D.y < self.ListOfThem[0].y + 1.5 * self.ListOfThem[0].h and
-                self.D.y + self.D.h < self.ListOfThem[0].y) :
-            self.visited[self.D.y] = self.visited[old_y] + 1
-            reward=-self.visited[self.D.y]
-        else :
+            if not self.on_ground:
+                self.velocity += 0.5
+                self.D.y += self.velocity
+                for i in self.ListOfThem:
+                    self.Collisions(i)
 
-            reward = 0
+            if old_y not in self.visited:
+                self.visited[old_y] = 0
 
-        if self.D.x <= 0:
-            self.D.x = 0
-        elif self.D.x >= self.w - 60:
-            self.D.x = self.w - 60
+            if self.D.y > old_y:
+                reward = 0
+            elif(self.D.x < self.ListOfThem[0].x + self.ListOfThem[0].w and
+                    self.D.x + self.D.w > self.ListOfThem[0].x and
+                    self.D.y < self.ListOfThem[0].y + 1.5 * self.ListOfThem[0].h and
+                    self.D.y + self.D.h == self.ListOfThem[0].y) :
+                self.visited[self.D.y] = self.visited[old_y] + 1
+                reward=-self.visited[self.D.y]
+            else :
 
-        state = [self.D.x, self.D.y]
-        done = True if self.step_counter > self.retries else False
+                reward = 0
 
-        return state, reward, done
+            if self.D.x <= 0:
+                self.D.x = 0
+            elif self.D.x >= self.w - 60:
+                self.D.x = self.w - 60
+
+            state = [self.D.x, self.D.y]
+            done = True if self.step_counter > self.retries else False
+
+            return state, reward, done
 
     def _update_ui(self):
         pygame.display.update()
@@ -289,7 +294,7 @@ class Game:
 
 if __name__ == '__main__':
     agent = DDQN()
-    env = Game(retries=100)
+    env = Game(retries=200)
     num_episode = 100000
 
     running = True
