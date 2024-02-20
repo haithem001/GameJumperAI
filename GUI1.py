@@ -199,9 +199,9 @@ class Game:
         self.step_counter += 1
 
         if action == 1:
-            self.D.x += 1
+            self.D.x += 3
         elif action == 2:
-            self.D.x -= 1
+            self.D.x -= 3
         elif action == 3:
 
             self.is_jumping = True
@@ -221,7 +221,8 @@ class Game:
         elif(self.D.x < self.ListOfThem[0].x + self.ListOfThem[0].w and
                 self.D.x + self.D.w > self.ListOfThem[0].x and
                 self.D.y < self.ListOfThem[0].y + 1.5 * self.ListOfThem[0].h and
-                self.D.y + self.D.h > self.ListOfThem[0].y) and self.D.y < old_y:
+                self.D.y + self.D.h < self.ListOfThem[0].y) :
+            self.visited[self.D.y] = self.visited[old_y] + 1
             reward=-self.visited[self.D.y]
         else :
 
