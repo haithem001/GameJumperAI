@@ -141,7 +141,7 @@ class Game:
         self.is_jumping = False
         self.jump_height = 15
 
-    def step(self):
+    '''def step(self):
         old_y = self.D.y
 
         self._update_ui()
@@ -162,7 +162,7 @@ class Game:
             done = True if self.step_counter > self.retries else False
             return state, reward, done
 
-    '''def play_step(self):
+        def play_step(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -182,16 +182,18 @@ class Game:
                     self.direction = Direction.FIX'''
 
     def reset(self):
+        self.visited = {self.D.y: 1}
         self.D.x = self.w / 2
-        self.D.y = self.h - 200 - self.D.h
+        self.D.y = self.h - 220 - self.D.h
         self.step_counter = 0
-        self.visited = {}
-        self.visited[self.D.y] = 1
-        state = [self.D.x, self.D.y-20]
+
+        state = [self.D.x, self.D.y]
         done = False
         return done, state
 
     def _move(self,action):
+        old_y = self.D.y
+
         while True:
             self.clock.tick(70)
 
@@ -199,7 +201,6 @@ class Game:
             self._update_ui()
 
             '''Hethi lekhra'''
-            old_y = self.D.y
             self.step_counter += 1
 
             if action == 1 :
@@ -227,6 +228,12 @@ class Game:
                     self.D.x + self.D.w > self.ListOfThem[0].x and
                     self.D.y < self.ListOfThem[0].y + 1.5 * self.ListOfThem[0].h and
                     self.D.y + self.D.h == self.ListOfThem[0].y) :
+                self.visited[self.D.y] = self.visited[old_y] + 1
+                reward=-self.visited[self.D.y]
+            elif (self.D.x < self.ListOfThem[1].x + self.ListOfThem[1].w and
+                  self.D.x + self.D.w > self.ListOfThem[1].x and
+                  self.D.y < self.ListOfThem[1].y + 1.5 * self.ListOfThem[1].h and
+                  self.D.y + self.D.h == self.ListOfThem[1].y) :
                 self.visited[self.D.y] = self.visited[old_y] + 1
                 reward=-self.visited[self.D.y]
             else :
@@ -294,28 +301,29 @@ class Game:
 
 if __name__ == '__main__':
     agent = DDQN()
-    env = Game(retries=200)
+    env = Game(retries=400)
     num_episode = 100000
 
     running = True
+    running_reward = 0
+    done, state = env.reset()
 
     for i in range(num_episode):
-        if  env.D.y < env.h:
-            done, state = env.reset()
 
-            running_reward = 0
-            while not done:
+
+        done, state = env.reset()
+        while not done:
+
+
                 action = agent.select_action(state)
                 print(action)
                 next_state, reward, done = env._move(action)
 
                 running_reward += reward
-                agent.memory_store(state, action, reward, next_state, done)
+                agent.memory_store(state, action, running_reward, next_state, done)
                 agent.train()
                 state = next_state
 
                 agent.update_episode_counter()
                 print(f'episode: {i}, reward: {running_reward}')
 
-        else:
-            done, state = env.reset()
