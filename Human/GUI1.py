@@ -6,6 +6,9 @@ White = (255, 255, 255)
 Red = (255,0,0)
 
 
+
+
+
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
@@ -48,6 +51,13 @@ class Game:
         self.on_ground = False
         self.is_jumping = False
         self.jump_height = 15
+        self.game_over = False
+
+
+    def draw_text(self,text, text_col, x, y):
+        font = pygame.font.Font("04B_30__.TTF",24)
+        img = font.render(text, True, text_col)
+        self.display.blit(img,(x,y))
 
     def Collisions(self, Tile):
         if (self.D.x < Tile.x + Tile.w and
@@ -139,6 +149,16 @@ if __name__ == '__main__':
     game = Game()
     running = True
     while running:
-        game.play_step()
-        game.clock.tick(60)
+        if game.game_over==False:
+            game.play_step()
+            game.clock.tick(60)
+            print(game.game_over,game.D.y,game.D.x)
+            if(game.D.x==840 and game.D.y ==40):
+                game.game_over=True
+
+        else:
+            game.draw_text("Game Over",White,game.w/2-100,450)
+            game.draw_text("You win",White,game.w/2-80,500)
+            pygame.display.flip()
+
     pygame.quit()
