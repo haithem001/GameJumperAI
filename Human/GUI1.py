@@ -32,26 +32,7 @@ class Game:
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('JumpGame')
         self.clock = pygame.time.Clock()
-        self.direction = Direction.FIX
-        self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
-
-        self.ListOfThem = [pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10),
-                           pygame.Rect(self.w / 2 - 200, self.h - 400, 100, 10),
-                           pygame.Rect(self.w - 30, self.h - 400, 100, 10),
-                           pygame.Rect(self.w / 2 + 100, self.h - 595, 100, 10),
-                           pygame.Rect(self.w / 2 - 200, self.h - 530, 100, 10),
-                           pygame.Rect(600, self.h - 700, 100, 10),
-                           pygame.Rect(400, self.h - 700, 100, 10),
-                           pygame.Rect(self.w - 30, self.h - 800, 100, 10),
-                           pygame.Rect(0, self.h - 700, 100, 10),
-                           pygame.Rect(0, self.h - 450, 100, 10),
-                           pygame.Rect(self.w / 2 - 20, self.h - 140, 100, 10)]
-
-        self.velocity = 0
-        self.on_ground = False
-        self.is_jumping = False
-        self.jump_height = 15
-        self.game_over = False
+        self.reset()
 
 
     def draw_text(self,text, text_col, x, y):
@@ -65,6 +46,7 @@ class Game:
                 self.D.y < Tile.y + 1.5 * Tile.h and
                 self.D.y + self.D.h > Tile.y):
             self.velocity = 0
+
             self.is_jumping = True
 
             if (Tile.y - self.D.y < self.D.h) and not (Tile.x - 55 < self.D.x):
@@ -74,6 +56,7 @@ class Game:
                 self.D.x = Tile.x + Tile.w
 
             elif (self.D.y + self.D.h >= Tile.y) and (self.D.y < Tile.y):
+                self.Tile = Tile
                 self.D.y = Tile.y - self.D.h
                 self.is_jumping = False
             else:
@@ -82,7 +65,12 @@ class Game:
                     self.velocity += 0.5  # Increase velocity due to gravity
                     self.D.y += self.velocity
 
+
+
+
     def play_step(self):
+
+        self.frame_iteration +=1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -106,11 +94,34 @@ class Game:
         self._update_ui()
 
     def reset(self):
-        self.D.x = self.w / 2
-        self.D.y = self.h - 180 - self.D.h
+        self.direction = Direction.FIX
+        self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
+
+        self.ListOfThem = [pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10),
+                           pygame.Rect(self.w / 2 - 200, self.h - 400, 100, 10),
+                           pygame.Rect(self.w - 30, self.h - 400, 100, 10),
+                           pygame.Rect(self.w / 2 + 100, self.h - 595, 100, 10),
+                           pygame.Rect(self.w / 2 - 200, self.h - 530, 100, 10),
+                           pygame.Rect(600, self.h - 700, 100, 10),
+                           pygame.Rect(400, self.h - 700, 100, 10),
+                           pygame.Rect(self.w - 30, self.h - 800, 100, 10),
+                           pygame.Rect(0, self.h - 700, 100, 10),
+                           pygame.Rect(0, self.h - 450, 100, 10),
+                           pygame.Rect(self.w / 2 - 20, self.h - 140, 100, 10)]
+
+        self.velocity = 0
+        self.on_ground = False
+        self.is_jumping = False
+        self.jump_height = 15
+        self.game_over = False
+        self.frame_iteration = 0
+        self.ListofListofThem = self.ListOfThem.copy()
+        self.Tile = None
+
 
     # MOOD
     def _move(self):
+
         if self.direction == Direction.RIGHT:
             self.D.x += 5
         elif self.direction == Direction.LEFT:
@@ -123,8 +134,13 @@ class Game:
             for i in self.ListOfThem:
                 self.Collisions(i)
 
-        if self.D.y >= self.h:  # Check if the character has landed on the ground
+
+        if self.D.y >= self.h  :  # Check if the character has landed on the ground
             self.reset()
+        print(len(self.ListofListofThem),len(self.ListOfThem))
+        if(self.Tile in self.ListofListofThem):
+            self.ListofListofThem.remove(self.Tile)
+
 
         # Keep the character within the game boundaries
         if self.D.x < 0:
@@ -152,7 +168,7 @@ if __name__ == '__main__':
         if game.game_over==False:
             game.play_step()
             game.clock.tick(60)
-            print(game.game_over,game.D.y,game.D.x)
+
             if(game.D.x==840 and game.D.y ==40):
                 game.game_over=True
 
