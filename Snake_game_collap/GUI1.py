@@ -82,7 +82,7 @@ class Game:
 
         reward = 0
         game_over = False
-        if self.D.y >= self.h or self.frame_iteration>(900-self.D.y):
+        if self.D.y >= self.h or self.frame_iteration>(1200-self.D.y):
             reward = -10
             game_over = True
             return reward,game_over,self.score
@@ -92,7 +92,7 @@ class Game:
             self.ListOfListOfThem.remove(self.Tile)
 
         self._update_ui()
-        self.clock.tick(70)
+        self.clock.tick(30)
 
         return reward,game_over,self.score
 
@@ -100,7 +100,7 @@ class Game:
 
     def reset(self):
         self.direction = Direction.UP
-        self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
+        self.D = pygame.Rect(self.w / 2 , self.h - 200, 60, 60)
 
         self.ListOfThem = [pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10),
                            pygame.Rect(self.w / 2 - 100, self.h - 400, 100, 10),
@@ -114,11 +114,12 @@ class Game:
                            pygame.Rect(0, self.h - 450, 100, 10),
                            pygame.Rect(self.w / 2 - 20, self.h - 140, 100, 10)]
 
+
         self.velocity = 0
         self.score = 0
         self.on_ground = False
         self.is_jumping = False
-        self.jump_height = 15
+        self.jump_height = 14
         self.game_over = False
         self.frame_iteration = 0
         self.ListOfListOfThem= self.ListOfThem.copy()
@@ -139,9 +140,9 @@ class Game:
             new_dir = clock_wise[next_idx]
         self.direction = new_dir
         if self.direction == Direction.RIGHT:
-            self.D.x += 5
+            self.D.x += 7
         elif self.direction == Direction.LEFT:
-            self.D.x -= 5
+            self.D.x -= 7
         elif self.direction == Direction.UP and not self.is_jumping:
             self.is_jumping = True
             self.velocity = -self.jump_height

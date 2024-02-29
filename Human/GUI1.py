@@ -40,30 +40,50 @@ class Game:
         img = font.render(text, True, text_col)
         self.display.blit(img,(x,y))
 
+
     def Collisions(self, Tile):
-        if (self.D.x < Tile.x + Tile.w and
-                self.D.x + self.D.w > Tile.x and
-                self.D.y < Tile.y + 1.5 * Tile.h and
-                self.D.y + self.D.h > Tile.y):
-            self.velocity = 0
 
-            self.is_jumping = True
+        if (self.D.left < Tile.right and self.D.right > Tile.left and
+                self.D.top < Tile.bottom and self.D.bottom > Tile.top):
 
-            if (Tile.y - self.D.y < self.D.h) and not (Tile.x - 55 < self.D.x):
-                self.D.x = Tile.x - self.D.w
 
-            elif (Tile.y - self.D.y < self.D.h) and not (Tile.x > self.D.x - 95):
-                self.D.x = Tile.x + Tile.w
 
-            elif (self.D.y + self.D.h >= Tile.y) and (self.D.y < Tile.y):
-                self.Tile = Tile
-                self.D.y = Tile.y - self.D.h
-                self.is_jumping = False
+            if not self.is_jumping:
+
+                self.velocity = 0
+                self.is_jumping = True
+                print("heyyyyyy")
+
+
+
+                if (Tile.top > self.D.bottom )  and  (self.D.left == Tile.right   ):
+                    self.is_jumping = False
+
+                    self.D.left = Tile.right
+                if (Tile.bottom > self.D.top )  and  (self.D.left == Tile.right  ):
+                    self.is_jumping = False
+
+                    self.D.left = Tile.right
+
+
+
+                if (Tile.top> self.D.bottom ) and  (self.D.right < Tile.left + 10 ):
+                    self.is_jumping = False
+
+                    self.D.right = Tile.left
+
+
+            if (self.D.bottom > Tile.top) and (self.D.y < Tile.y) :
+                    self.D.bottom = Tile.top
+                    self.is_jumping = False
+
+
+
             else:
-                self.on_ground = False
-                if self.D.y > self.h - 200:
-                    self.velocity += 0.5  # Increase velocity due to gravity
-                    self.D.y += self.velocity
+                    self.on_ground = False
+                    if self.D.top > self.h - 200:
+
+                        self.D.y += self.velocity
 
 
 
@@ -109,6 +129,9 @@ class Game:
                            pygame.Rect(0, self.h - 450, 100, 10),
                            pygame.Rect(self.w / 2 - 20, self.h - 140, 100, 10)]
 
+
+
+
         self.velocity = 0
         self.on_ground = False
         self.is_jumping = False
@@ -122,24 +145,28 @@ class Game:
     # MOOD
     def _move(self):
 
-        if self.direction == Direction.RIGHT:
+        if self.direction == Direction.RIGHT and not self.is_jumping:
             self.D.x += 5
-        elif self.direction == Direction.LEFT:
+
+        elif self.direction == Direction.LEFT and not self.is_jumping:
             self.D.x -= 5
+        elif self.direction==Direction.UP:
+            self.is_jumping=True
+            self.velocity=-self.jump_height
+
 
         # Apply gravity
         if not self.on_ground:
-            self.velocity += 0.5  # Increase velocity due to gravity
-            self.D.y += self.velocity
             for i in self.ListOfThem:
                 self.Collisions(i)
+            self.velocity += 0.5  # Increase velocity due to gravity
+            self.D.y += self.velocity
+
 
 
         if self.D.y >= self.h  :  # Check if the character has landed on the ground
             self.reset()
-        print(len(self.ListofListofThem),len(self.ListOfThem))
-        if(self.Tile in self.ListofListofThem):
-            self.ListofListofThem.remove(self.Tile)
+
 
 
         # Keep the character within the game boundaries
