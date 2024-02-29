@@ -43,9 +43,12 @@ class Agent:
 
     def train_long_memory(self):
         if len(self.memory) > BATCH_SIZE:
+
             mini_sample = random.sample(self.memory, BATCH_SIZE)  # list of tuples
         else:
-            mini_sample = self.memory
+            mini_sample = self.model.load()
+            if mini_sample==None:
+                mini_sample = self.memory
 
         states, actions, rewards, next_states, dones = zip(*mini_sample)
         self.trainer.train_step(states, actions, rewards, next_states, dones)
@@ -82,7 +85,7 @@ def train():
     agent = Agent()
     game = Game()
     while True:
-
+        agent.model.load()
         # get old state
         state_old = get_state(game)
 
@@ -96,6 +99,7 @@ def train():
         if record < score and not saved:
             saved=True
             record += score
+            agent.model.save()
 
 
 
@@ -117,9 +121,9 @@ def train():
             # train long memory, plot result
             game.reset()
             agent.n_ts += 1
-            agent.model.load()
+
             agent.train_long_memory()
-            agent.model.save()
+
 
             print('Game', agent.n_ts, 'Score', score, 'Record:', record,'TotalScore:', total_score)
 
