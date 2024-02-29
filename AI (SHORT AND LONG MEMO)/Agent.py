@@ -1,3 +1,4 @@
+from matplotlib import pyplot
 import torch
 import random
 import numpy as np
@@ -87,28 +88,31 @@ def train():
     plot_mean_scores = []
     total_score = 0
     record = 0
+    score=0
+    highestscore=0
     agent = Agent()
     game = Game()
     while True:
-
+        agent.model.load()
 
         # get old state
         state_old = get_state(game)
 
         # get move
         final_move = agent.get_action(state_old)
-
         # perform move and get new state
         reward, done, score = game.play_step(final_move)
 
-        if score > record:
-            record = score
-            agent.model.save()
-        else:
-            agent.model.load()
-
-
         state_new = get_state(game)
+
+        if score > total_score:
+            record = score
+
+            agent.model.save()
+
+
+
+
         if reward >= 10:
             print(reward)
 
@@ -127,16 +131,13 @@ def train():
             agent.train_long_memory()
 
 
-
-
-
-
             print('Game', agent.n_ts, 'Score', score, 'Record:', record)
 
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_ts
             plot_mean_scores.append(mean_score)
+
 
 
 

@@ -83,16 +83,18 @@ class Game:
         reward = 0
         game_over = False
         if self.D.y >= self.h or self.frame_iteration>(1200-self.D.y):
+            self.score -=1
+
             reward = -10
             game_over = True
             return reward,game_over,self.score
         if(self.Tile in self.ListOfListOfThem):
             self.score +=1
-            reward = 10
+            reward = 100
             self.ListOfListOfThem.remove(self.Tile)
 
         self._update_ui()
-        self.clock.tick(30)
+        self.clock.tick(60)
 
         return reward,game_over,self.score
 
@@ -141,7 +143,8 @@ class Game:
         self.direction = new_dir
         if self.direction == Direction.RIGHT:
             self.D.x += 7
-        elif self.direction == Direction.LEFT:
+
+        elif self.direction == Direction.LEFT :
             self.D.x -= 7
         elif self.direction == Direction.UP and not self.is_jumping:
             self.is_jumping = True
