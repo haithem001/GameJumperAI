@@ -82,15 +82,13 @@ class Game:
 
         reward = 0
         game_over = False
-        if self.D.y >= self.h or self.frame_iteration>(1200-self.D.y):
-            self.score -=1
-
-            reward = -10
+        if self.D.y >= self.h or self.frame_iteration>(10000):
+            reward = -100
             game_over = True
             return reward,game_over,self.score
         if(self.Tile in self.ListOfListOfThem):
             self.score +=1
-            reward = 100
+            reward = (self.h-self.D.y)/10
             self.ListOfListOfThem.remove(self.Tile)
 
         self._update_ui()

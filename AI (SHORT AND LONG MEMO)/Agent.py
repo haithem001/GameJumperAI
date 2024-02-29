@@ -16,38 +16,26 @@ def get_state(game):
     dir_r = game.direction == Direction.RIGHT
     dir_u = game.direction == Direction.UP
     dir_l = game.direction == Direction.LEFT
-    if len(game.ListOfListOfThem)%2==0:
-        p=True
-        l=False
-    else:
-        p= False
-        l= True
-
 
     state = [
-        True,
-        True,
-        True,
-
         dir_l,
         dir_r,
         dir_u,
-
-
-
     ]
 
     return np.array(state, dtype=int)
 
 
 class Agent:
-
+    def getIterations(self):
+        return self.iter
     def __init__(self):
+        self.iter =0
         self.n_ts = 0
         self.epsilon = 0  # randomness
         self.gamma = 0.9  # discount rate
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
-        self.model = Linear_QNet(6, 256, 3)
+        self.model = Linear_QNet(3, 256, 3)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def remember(self, state, action, reward, next_state, done):
@@ -88,12 +76,12 @@ def train():
     plot_mean_scores = []
     total_score = 0
     record = 0
-    score=0
+
     highestscore=0
+    saved=False
     agent = Agent()
     game = Game()
     while True:
-        agent.model.load()
 
         # get old state
         state_old = get_state(game)
@@ -105,11 +93,12 @@ def train():
 
         state_new = get_state(game)
 
-        if score > total_score:
-            record = score
+        if record < score and not saved:
+            saved=True
+            record += score
+
 
             agent.model.save()
-
 
 
 
@@ -128,15 +117,19 @@ def train():
             # train long memory, plot result
             game.reset()
             agent.n_ts += 1
+            agent.model.load()
             agent.train_long_memory()
 
 
-            print('Game', agent.n_ts, 'Score', score, 'Record:', record)
+            print('Game', agent.n_ts, 'Score', score, 'Record:', record,'TotalScore:', total_score)
 
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_ts
             plot_mean_scores.append(mean_score)
+
+
+            saved=False
 
 
 
