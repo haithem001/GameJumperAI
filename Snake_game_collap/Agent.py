@@ -15,13 +15,24 @@ def get_state(game):
     dir_r = game.direction == Direction.RIGHT
     dir_u = game.direction == Direction.UP
     dir_l = game.direction == Direction.LEFT
+    if len(game.ListOfListOfThem)%2==0:
+        p=True
+        l=False
+    else:
+        p= False
+        l= True
 
 
     state = [
+        True,
+        True,
+        True,
 
         dir_l,
         dir_r,
         dir_u,
+
+
 
     ]
 
@@ -35,7 +46,7 @@ class Agent:
         self.epsilon = 0  # randomness
         self.gamma = 0.9  # discount rate
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
-        self.model = Linear_QNet(3, 256, 3)
+        self.model = Linear_QNet(6, 256, 3)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def remember(self, state, action, reward, next_state, done):
@@ -59,7 +70,7 @@ class Agent:
         # random moves: tradeoff exploration / exploitation
         self.epsilon = 80 - self.n_ts
         final_move = [0, 0, 0]
-        if random.randint(0, 200) < self.epsilon:
+        if random.randint(0, 300) < self.epsilon:
             move = random.randint(0, 2)
             final_move[move] = 1
         else:
@@ -88,6 +99,8 @@ def train():
         # perform move and get new state
         reward, done, score = game.play_step(final_move)
         state_new = get_state(game)
+        if reward >= 10:
+            print(reward)
 
         # train short memory
         agent.train_short_memory(state_old, final_move, reward, state_new, done)

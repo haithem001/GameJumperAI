@@ -79,6 +79,7 @@ class Game:
 
 
         self._move(action)
+
         reward = 0
         game_over = False
         if self.D.y >= self.h or self.frame_iteration>(900-self.D.y):
@@ -91,6 +92,8 @@ class Game:
             self.ListOfListOfThem.remove(self.Tile)
 
         self._update_ui()
+        self.clock.tick(70)
+
         return reward,game_over,self.score
 
 
@@ -100,7 +103,7 @@ class Game:
         self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
 
         self.ListOfThem = [pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10),
-                           pygame.Rect(self.w / 2 - 200, self.h - 400, 100, 10),
+                           pygame.Rect(self.w / 2 - 100, self.h - 400, 100, 10),
                            pygame.Rect(self.w - 30, self.h - 400, 100, 10),
                            pygame.Rect(self.w / 2 + 100, self.h - 595, 100, 10),
                            pygame.Rect(self.w / 2 - 200, self.h - 530, 100, 10),
@@ -119,6 +122,8 @@ class Game:
         self.game_over = False
         self.frame_iteration = 0
         self.ListOfListOfThem= self.ListOfThem.copy()
+        self.ListOfListOfThem.remove(self.ListOfListOfThem[-1])
+
         self.Tile= None
     # MOOD
     def _move(self,action):
