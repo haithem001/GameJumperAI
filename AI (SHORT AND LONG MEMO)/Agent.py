@@ -98,7 +98,7 @@ def train():
             record += score
 
 
-            agent.model.save()
+
 
 
 
@@ -119,7 +119,7 @@ def train():
             agent.n_ts += 1
             agent.model.load()
             agent.train_long_memory()
-
+            agent.model.save()
 
             print('Game', agent.n_ts, 'Score', score, 'Record:', record,'TotalScore:', total_score)
 
