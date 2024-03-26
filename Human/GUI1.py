@@ -52,7 +52,8 @@ class Game:
             if (Tile.y - self.D.y < self.D.h) and not (Tile.x - 55 < self.D.x):
                 self.D.x = Tile.x - self.D.w
 
-            elif (Tile.y - self.D.y < self.D.h) and not (Tile.x > self.D.x - 95):
+
+            elif (Tile.y - self.D.y < self.D.h) and not (Tile.x > self.D.x - Tile.w + 5):
                 self.D.x = Tile.x + Tile.w
 
             elif (self.D.y + self.D.h >= Tile.y) and (self.D.y < Tile.y):
@@ -95,19 +96,13 @@ class Game:
 
     def reset(self):
         self.direction = Direction.FIX
-        self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
+        self.D = pygame.Rect(100, self.h - 220, 60, 60)
 
-        self.ListOfThem = [pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10),
-                           pygame.Rect(self.w / 2 - 200, self.h - 400, 100, 10),
-                           pygame.Rect(self.w - 30, self.h - 400, 100, 10),
-                           pygame.Rect(self.w / 2 + 100, self.h - 595, 100, 10),
-                           pygame.Rect(self.w / 2 - 200, self.h - 530, 100, 10),
-                           pygame.Rect(600, self.h - 700, 100, 10),
-                           pygame.Rect(400, self.h - 700, 100, 10),
-                           pygame.Rect(self.w - 30, self.h - 800, 100, 10),
-                           pygame.Rect(0, self.h - 700, 100, 10),
-                           pygame.Rect(0, self.h - 450, 100, 10),
-                           pygame.Rect(self.w / 2 - 20, self.h - 140, 100, 10)]
+        self.ListOfThem = [pygame.Rect(300, self.h - 460, 300, 10),
+                           pygame.Rect(700, self.h - 240, 200, 10),
+                           pygame.Rect(340, self.h - 200, 400, 300),
+                           pygame.Rect(0, self.h - 140, 300, 50)
+                           ]
 
         self.velocity = 0
         self.on_ground = False
@@ -137,7 +132,7 @@ class Game:
 
         if self.D.y >= self.h  :  # Check if the character has landed on the ground
             self.reset()
-        print(len(self.ListofListofThem),len(self.ListOfThem))
+
         if(self.Tile in self.ListofListofThem):
             self.ListofListofThem.remove(self.Tile)
 

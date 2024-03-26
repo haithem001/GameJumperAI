@@ -37,13 +37,13 @@ class DDQN(object):
         self.batch_size = 64
         self.episode_counter = 0
         self.target_update_freq = 1000  # Adjusted target update frequency
-
+        self.transition = []
         self.target_net.load_state_dict(self.eval_net.state_dict())
 
     def memory_store(self, s0, a0, r, s1, done):
-        transition = np.concatenate((s0, [a0, r], s1, [done]))
+        self.transition = np.concatenate((s0, [a0, r], s1, [done]))
         index = self.memory_counter % self.memory_size
-        self.memory[index, :] = transition
+        self.memory[index, :] = self.transition
         self.memory_counter += 1
 
     def select_action(self, state):
@@ -56,13 +56,18 @@ class DDQN(object):
             q_values = self.eval_net(state)
             return torch.argmax(q_values).item()
 
-    def train(self):
+    def train(self, boolean):
+
         if self.memory_counter < self.batch_size:
             return
 
         batch_index = np.random.choice(
             min(self.memory_counter, self.memory_size), size=self.batch_size)
-        batch_memory = self.memory[batch_index, :]
+        if boolean is False:
+            batch_memory = self.memory[batch_index, :]
+            print(batch_memory)
+        else:
+            batch_memory = self.transition
 
         batch_s0 = torch.tensor(batch_memory[:, :2], dtype=torch.float32)
         batch_a0 = torch.tensor(batch_memory[:, 2], dtype=torch.long)
@@ -92,6 +97,9 @@ class DDQN(object):
     def update_episode_counter(self):
         self.episode_counter += 1
 
+    def short_memory(self):
+        self.train(True)
+
 
 class NETWORK(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim):
@@ -112,18 +120,18 @@ class Game:
     def __init__(self, retries=float('inf')):
         self.retries = retries
         self.step_counter = 0
-
+        self.FPS = 60
         pygame.init()
         self.w = 900
         self.h = 900
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('JumpGame')
         self.clock = pygame.time.Clock()
-        self.clock.tick(30)
-        self.direction = Direction.FIX
         self.visited = {}
         self.D = pygame.Rect(self.w / 2, self.h - 200, 60, 60)
-        self.on_tile=False
+        self.record=self.h-self.D.h-200
+
+        self.on_tile = False
         self.ListOfThem = [pygame.Rect(self.w / 2 + 100, self.h - 300, 100, 10),
                            pygame.Rect(self.w / 2 - 200, self.h - 400, 100, 10),
                            pygame.Rect(self.w - 30, self.h - 400, 100, 10),
@@ -139,7 +147,10 @@ class Game:
         self.velocity = 0
         self.on_ground = False
         self.is_jumping = False
-        self.jump_height = 15
+        self.is_jumping_Left = False
+        self.is_jumping_Right = False
+        self.jump_height = 14
+
 
     '''def step(self):
         old_y = self.D.y
@@ -181,21 +192,23 @@ class Game:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     self.direction = Direction.FIX'''
 
-    def reset(self):
-        self.visited = {self.D.y: 1}
-        self.D.x = self.w / 2
-        self.D.y = self.h - 220 - self.D.h
+    def reset(self, R):
+
         self.step_counter = 0
 
         state = [self.D.x, self.D.y]
         done = False
         return done, state
 
-    def _move(self,action):
-        old_y = self.D.y
+    def _move(self, action):
 
+        global reward
+        self.clock.tick(self.FPS)
+
+        old_y = self.D.y - self.jump_height
         while True:
-            self.clock.tick(70)
+            old_y = self.D.y
+            state = [self.D.x, self.D.y]
 
             pygame.display.update()
             self._update_ui()
@@ -203,10 +216,25 @@ class Game:
             '''Hethi lekhra'''
             self.step_counter += 1
 
-            if action == 1 :
-                self.D.x += 3
-            elif action == 2 :
-                self.D.x -= 3
+            if action == 1:
+                if self.is_jumping and not self.is_jumping_Left:
+                    self.D.x += 5
+                    self.is_jumping_Right = True
+                    self.is_jumping_Left = False
+                else:
+                    self.D.x += 5
+                    self.is_jumping_Right = False
+                    self.is_jumping_Left = False
+            elif action == 2:
+                if self.is_jumping and not self.is_jumping_Right:
+                    self.D.x -= 5
+                    self.is_jumping_Right = False
+                    self.is_jumping_Left = True
+                else:
+                    self.D.x -= 5
+                    self.is_jumping_Right = False
+                    self.is_jumping_Left = False
+
             elif action == 3 and not self.is_jumping:
 
                 self.is_jumping = True
@@ -214,38 +242,34 @@ class Game:
                 self.on_ground = False
 
             if not self.on_ground:
+                if self.is_jumping_Right:
+                    self.D.x += 5
+                if self.is_jumping_Left:
+                    self.D.x -= 5
                 self.velocity += 0.5
                 self.D.y += self.velocity
                 for i in self.ListOfThem:
                     self.Collisions(i)
 
-            if old_y not in self.visited:
+            if old_y not in self.visited :
                 self.visited[old_y] = 0
 
-            if self.D.y > old_y:
+            if self.D.y > self.record:
                 reward = 0
-            elif(self.D.x < self.ListOfThem[0].x + self.ListOfThem[0].w and
-                    self.D.x + self.D.w > self.ListOfThem[0].x and
-                    self.D.y < self.ListOfThem[0].y + 1.5 * self.ListOfThem[0].h and
-                    self.D.y + self.D.h == self.ListOfThem[0].y) :
-                self.visited[self.D.y] = self.visited[old_y] + 1
-                reward=-self.visited[self.D.y]
-            elif (self.D.x < self.ListOfThem[1].x + self.ListOfThem[1].w and
-                  self.D.x + self.D.w > self.ListOfThem[1].x and
-                  self.D.y < self.ListOfThem[1].y + 1.5 * self.ListOfThem[1].h and
-                  self.D.y + self.D.h == self.ListOfThem[1].y) :
-                self.visited[self.D.y] = self.visited[old_y] + 1
-                reward=-self.visited[self.D.y]
-            else :
 
-                reward = 0
+
+            else:
+
+                self.visited[self.D.y] = self.visited[old_y] + 1
+                reward = -self.visited[self.D.y]
+
+
 
             if self.D.x <= 0:
                 self.D.x = 0
             elif self.D.x >= self.w - 60:
                 self.D.x = self.w - 60
 
-            state = [self.D.x, self.D.y]
             done = True if self.step_counter > self.retries else False
 
             return state, reward, done
@@ -278,20 +302,25 @@ class Game:
                 self.D.y + self.D.h > Tile.y):
             self.velocity = 0
             self.is_jumping = True
-            self.on_tile=True
+            self.is_jumping_Left = False
+            self.is_jumping_Right = False
+            self.on_tile = True
+            if (self.D.y<self.record):
+                self.record=self.D.y
 
             if (Tile.y - self.D.y < self.D.h) and not (Tile.x - 55 < self.D.x):
                 self.D.x = Tile.x - self.D.w
-                self.on_tile=False
+                self.on_tile = False
 
             elif (Tile.y - self.D.y < self.D.h) and not (Tile.x > self.D.x - 95):
                 self.D.x = Tile.x + Tile.w
-                self.on_tile=False
+                self.on_tile = False
 
             elif (self.D.y + self.D.h >= Tile.y) and (self.D.y < Tile.y):
                 self.D.y = Tile.y - self.D.h
                 self.is_jumping = False
-                self.on_tile=False
+                self.on_tile = False
+
             else:
                 self.on_ground = False
                 if self.D.y > self.h - 200:
@@ -300,30 +329,41 @@ class Game:
 
 
 if __name__ == '__main__':
+    R = 300
     agent = DDQN()
-    env = Game(retries=400)
+    env = Game(retries=R)
     num_episode = 100000
-
+    record=0
     running = True
+    best_reward = 0
     running_reward = 0
-    done, state = env.reset()
+    done, state = env.reset(R)
 
     for i in range(num_episode):
 
+        agent.update_episode_counter()
 
-        done, state = env.reset()
+        done, state = env.reset(R)
+
         while not done:
+            print(f'episode: {i}, reward: {best_reward}')
+
+            action = agent.select_action(state)
+            next_state, reward, done = env._move(action)
+            running_reward += reward
+            best_reward = running_reward
+            if (env.D.y > env.h):
+                env.D.y = env.h - 200 - env.D.h
+                env.D.x = env.w / 2
+                running_reward = 0
 
 
-                action = agent.select_action(state)
-                print(action)
-                next_state, reward, done = env._move(action)
+                agent.train(False)
 
-                running_reward += reward
-                agent.memory_store(state, action, running_reward, next_state, done)
-                agent.train()
-                state = next_state
+            if (running_reward > best_reward):
 
-                agent.update_episode_counter()
-                print(f'episode: {i}, reward: {running_reward}')
+                agent.memory_store(state, action, best_reward, next_state, done)
+
+
+            state = next_state
 
